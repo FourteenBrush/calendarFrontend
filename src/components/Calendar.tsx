@@ -2,7 +2,7 @@ import React, { FlatList, StyleSheet } from "react-native"
 import CalendarGrid from "@/components/CalendarGrid"
 import CalendarHeader from "@/components/CalendarHeader"
 import { useRef, useState } from "react"
-import { Day, getCalendarDays } from "@/utils"
+import { Day, DAYS_PER_WEEK, getCalendarDays } from "@/utils"
 
 export default () => {
   const today = new Date()
@@ -10,12 +10,12 @@ export default () => {
   const cellsRef = useRef<FlatList<Day> | null>(null)
   const [days, setDays] = useState(calendarDays)
 
-  // TODO: store calendar state here, together with service
-  
   // TODO: index does not consider extra days of month prepended
   const scrollToToday = () => {
-    const today = new Date()
-    cellsRef.current?.scrollToIndex({ index: today.getDate() - 1, animated: true })
+    const today = new Date().getDate()
+    // NOTE: scrollToIndex requires an index into the logical row
+    const index = days.findIndex(day => day.date.getDate() === today) / DAYS_PER_WEEK
+    cellsRef.current?.scrollToIndex({ index, animated: true })
   }
 
   return (
