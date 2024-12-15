@@ -1,20 +1,30 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar } from "expo-status-bar"
+import { ThemeProvider, useTheme } from "@/hooks/useTheme"
+import { StyleSheet, View } from "react-native"
+import Calendar from "@/components/Calendar"
 
-export default function App() {
+export default () => (
+  <ThemeProvider>
+    <AppContent />
+  </ThemeProvider>
+)
+
+const AppContent = () => {
+  const { theme } = useTheme()
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={[theme.root, styles.app]}>
+      <Calendar />
+      <StatusBar style="auto" translucent={true} />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  app: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12 * 4,
   },
-});
+})
