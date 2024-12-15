@@ -1,6 +1,6 @@
 import { useTheme } from "@/hooks/useTheme"
-import { useState } from "react"
-import { GestureResponderEvent, StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native"
+import { GestureResponderEvent, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
+import HoverableOpacity from "./HoverableOpacity"
 
 export type CalendarHeaderProps = {
   onTodayButtonPress: (event: GestureResponderEvent) => void,
@@ -9,21 +9,17 @@ export type CalendarHeaderProps = {
 
 export default ({ onTodayButtonPress, style }: CalendarHeaderProps) => {
   const { theme } = useTheme()
-  const [hoveringTodayButton, setHoveringTodayButton] = useState(false)
 
-  // FIXME: create a HoverableOpacity component
   return (
     <View style={[styles.container, style]}>
-      <View 
-        onPointerEnter={() => setHoveringTodayButton(true)}
-        onPointerLeave={() => setHoveringTodayButton(false)}>
-        <TouchableOpacity
-          onPress={onTodayButtonPress}
-          style={[styles.todayButton, hoveringTodayButton && styles.todayButtonHover]}
-          activeOpacity={0.45}>
-          <Text style={[theme.textPrimary, styles.todayText]}>Today</Text>
-        </TouchableOpacity>
-      </View>
+      <HoverableOpacity
+        onPress={onTodayButtonPress}
+        style={[styles.todayButton]}
+        hoverStyle={styles.todayButtonHover}
+        activeOpacity={0.45}
+      >
+        <Text style={[theme.textPrimary, styles.todayText]}>Today</Text>
+      </HoverableOpacity>
 
       <Text style={[styles.text, theme.textPrimary]}>December 2024</Text>
     </View>

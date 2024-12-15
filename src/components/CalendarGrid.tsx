@@ -1,9 +1,7 @@
 import { MutableRefObject } from "react"
 import React, { FlatList, ListRenderItemInfo, StyleProp, StyleSheet, Text, useWindowDimensions, View, ViewStyle } from "react-native"
 import { useTheme } from "@/hooks/useTheme"
-import { Day, daysInMonth } from "@/utils"
-
-const DAYS_A_WEEK = 7
+import { Day, DAYS_PER_WEEK, WEEK_DAYS } from "@/utils"
 
 export type CalendarGridProps = {
   listRef: MutableRefObject<FlatList<Day> | null>,
@@ -17,17 +15,14 @@ export default ({ listRef, days }: CalendarGridProps) => {
   const cellHeight = Math.max(45, height / 6)
 
   const today = new Date()
-  //const dayIndices = Array.from({ length: daysInMonth(today) * 3 }, (_, idx) => idx)
-  const daysOfTheWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-  const numRows = Math.ceil(days.length / DAYS_A_WEEK)
+  const numRows = Math.ceil(days.length / DAYS_PER_WEEK)
 
   const renderCell = ({ item, index }: ListRenderItemInfo<Day>) => {
     // ensure no overlapping borders get shown
-    //const dayNumber = index + 1
     const dayNumber = item.date.getDate()
     const isToday = dayNumber === today.getDate()
-    const lastColumn = (dayNumber % DAYS_A_WEEK === 0) || index === days.length - 1
-    const lastRow = Math.ceil(dayNumber / DAYS_A_WEEK) == numRows
+    const lastColumn = (dayNumber % DAYS_PER_WEEK === 0) || index === days.length - 1
+    const lastRow = Math.ceil(dayNumber / DAYS_PER_WEEK) == numRows
 
     return (
       <CalendarCell
@@ -46,8 +41,10 @@ export default ({ listRef, days }: CalendarGridProps) => {
   return (
     <>
       <View style={styles.header}>
-        {daysOfTheWeek.map(day => (
-          <Text key={day} style={[theme.textPrimary, styles.headerCell]}>{day}</Text>)
+        {WEEK_DAYS.map(day => (
+          <Text key={day}
+            style={[theme.textPrimary, styles.headerCell]}>{day}
+          </Text>)
         )}
       </View>
 
@@ -57,15 +54,15 @@ export default ({ listRef, days }: CalendarGridProps) => {
         pagingEnabled={true}
         // at a certain lower bound, this doesnt seem to apply anymore
         snapToInterval={cellHeight}
-        numColumns={7}
+        numColumns={DAYS_PER_WEEK}
         showsVerticalScrollIndicator={false}
         data={days}
         renderItem={renderCell}
         //initialScrollIndex={1} // row, requires getItemLayout
-        getItemLayout={(_data, index) => {
-          const offset = Math.floor(index / DAYS_A_WEEK) * cellHeight
-          return { length: cellHeight, offset, index }
-        }}
+        //getItemLayout={(_data, index) => {
+        //  const offset = Math.floor(index / DAYS_A_WEEK) * cellHeight
+        //  return { length: cellHeight, offset, index }
+        //}}
       />
     </>
   )
@@ -85,7 +82,7 @@ const CalendarCell = ({ dayNumber, isToday, height, style }: CalendarCellProps) 
     <View style={[style, { height }]}>
       <Text
         style={[styles.dayNumber, theme.textPrimary,
-          isToday && styles.currentDayNumber]}
+        isToday && styles.currentDayNumber]}
       >{dayNumber}</Text>
     </View>
   )
