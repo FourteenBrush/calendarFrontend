@@ -13,7 +13,7 @@ export default () => {
   // TODO: index does not consider extra days of month prepended
   const scrollToToday = () => {
     const today = new Date().getDate()
-    // NOTE: scrollToIndex requires an index into the logical row
+    // NOTE: scrollToIndex requires an index into the logical row, discards decimal positions
     const index = days.findIndex(day => day.date.getDate() === today) / DAYS_PER_WEEK
     cellsRef.current?.scrollToIndex({ index, animated: true })
   }

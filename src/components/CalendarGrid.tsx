@@ -59,10 +59,10 @@ export default ({ listRef, days }: CalendarGridProps) => {
         data={days}
         renderItem={renderCell}
         //initialScrollIndex={1} // row, requires getItemLayout
-        //getItemLayout={(_data, index) => {
-        //  const offset = Math.floor(index / DAYS_A_WEEK) * cellHeight
-        //  return { length: cellHeight, offset, index }
-        //}}
+        getItemLayout={(_data, index) => {
+          const offset = Math.floor(index / DAYS_PER_WEEK) * cellHeight
+          return { length: cellHeight, offset, index }
+        }}
       />
     </>
   )
