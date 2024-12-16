@@ -1,12 +1,13 @@
 import { createContext, PropsWithChildren, useContext, useState } from "react"
-import { darkTheme, lightTheme } from "@/styles/theme"
+import { darkTheme, lightTheme, Theme } from "@/styles/theme"
 import { useColorScheme } from "react-native"
 
-// TODO: no initial values
-const ThemeContext = createContext({
-  theme: window.matchMedia("(prefers-color-scheme: dark)").matches ? darkTheme : lightTheme,
-  toggleTheme: () => {},
-})
+export type ThemeContextValues = {
+  theme: Theme,
+  toggleTheme: () => void,
+}
+
+const ThemeContext = createContext({} as ThemeContextValues)
 
 export const ThemeProvider = ({children}: PropsWithChildren) => {
   const colorScheme = useColorScheme() ?? "dark"
