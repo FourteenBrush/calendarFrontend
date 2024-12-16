@@ -15,7 +15,7 @@ const AppContent = () => {
   return (
     <View style={[theme.root, styles.app]}>
       <Calendar />
-      <StatusBar style="auto" translucent={true} />
+      <StatusBar style="auto" translucent={false} />
     </View>
   )
 }
