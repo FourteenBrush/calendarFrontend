@@ -1,54 +1,50 @@
-import { MutableRefObject } from "react"
-import React, { FlatList, ListRenderItemInfo, StyleProp, StyleSheet, Text, useWindowDimensions, View, ViewStyle } from "react-native"
+import { MutableRefObject, useCallback, useRef } from "react"
+import React, { FlatList, ListRenderItemInfo, StyleSheet, Text, useWindowDimensions, View, ViewabilityConfig, ViewToken } from "react-native"
 import { useTheme } from "@/hooks/useTheme"
 import { Day, DAYS_PER_WEEK, WEEK_DAYS } from "@/utils"
+import * as theme from "@/styles/theme"
+import { renderCell } from "./CalendarCell"
+import { mockEventsData } from "@/mock"
 
 export type CalendarGridProps = {
   listRef: MutableRefObject<FlatList<Day> | null>,
-  days: Day[],
+  readonly cells: Day[],
 }
 
-export default ({ listRef, days }: CalendarGridProps) => {
+export default ({ listRef, cells }: CalendarGridProps) => {
   const { height } = useWindowDimensions()
-  const { theme } = useTheme()
 
-  const cellHeight = Math.max(45, height / 6)
+  const viewabilityConfig = useRef<ViewabilityConfig>({
+    minimumViewTime: 1,
+    // a single pixel in the viewport makes the item visible
+    viewAreaCoveragePercentThreshold: 0,
+    waitForInteraction: true,
+  })
 
-  const today = new Date()
-  const numRows = Math.ceil(days.length / DAYS_PER_WEEK)
+  const cellHeight = Math.max(theme.MIN_CELL_HEIGHT, height / 7)
 
-  const renderCell = ({ item, index }: ListRenderItemInfo<Day>) => {
-    // ensure no overlapping borders get shown
-    const dayNumber = item.date.getDate()
-    const isToday = dayNumber === today.getDate()
-    const lastColumn = (dayNumber % DAYS_PER_WEEK === 0) || index === days.length - 1
-    const lastRow = Math.ceil(dayNumber / DAYS_PER_WEEK) == numRows
-
-    return (
-      <CalendarCell
-        dayNumber={dayNumber}
-        isToday={isToday}
-        height={cellHeight}
-        style={[
-          styles.cell,
-          lastColumn && styles.borderRight,
-          lastRow && styles.borderBottom,
-        ]}
-      />
-    )
+  const renderItem = (renderInfo: ListRenderItemInfo<Day>) => {
+    const events = Math.random() < 0.3 ? mockEventsData : []
+    return renderCell({ height: cellHeight, cellsCount: cells.length, events, ...renderInfo })
   }
+
+  const getItemLayout = (_: ArrayLike<Day> | null | undefined, index: number) => {
+    const offset = Math.floor(index / DAYS_PER_WEEK) * cellHeight
+    return { length: cellHeight, offset, index }
+  }
+
+  // NOTE: changing onViewableItemsChanged cb on the fly is not supported, needs to be cached
+  const onViewableItemsChanged = useCallback(
+    ({ changed, viewableItems }: { changed: ViewToken<Day>[], viewableItems: ViewToken<Day>[] }
+    ) => {
+    }, [])
 
   return (
     <>
-      <View style={styles.header}>
-        {WEEK_DAYS.map(day => (
-          <Text key={day}
-            style={[theme.textPrimary, styles.headerCell]}>{day}
-          </Text>)
-        )}
-      </View>
-
+      <WeekDaysHeader />
       <FlatList
+        data={cells}
+        renderItem={renderItem}
         ref={listRef}
         style={styles.container}
         pagingEnabled={true}
@@ -56,34 +52,21 @@ export default ({ listRef, days }: CalendarGridProps) => {
         snapToInterval={cellHeight}
         numColumns={DAYS_PER_WEEK}
         showsVerticalScrollIndicator={false}
-        data={days}
-        renderItem={renderCell}
-        //initialScrollIndex={1} // row, requires getItemLayout
-        getItemLayout={(_data, index) => {
-          const offset = Math.floor(index / DAYS_PER_WEEK) * cellHeight
-          return { length: cellHeight, offset, index }
-        }}
+        getItemLayout={getItemLayout}
+        viewabilityConfig={viewabilityConfig.current}
+        onViewableItemsChanged={onViewableItemsChanged}
       />
     </>
   )
 }
 
-type CalendarCellProps = {
-  dayNumber: number,
-  isToday: boolean,
-  height: number,
-  style?: StyleProp<ViewStyle>,
-}
-
-const CalendarCell = ({ dayNumber, isToday, height, style }: CalendarCellProps) => {
+const WeekDaysHeader = () => {
   const { theme } = useTheme()
-
   return (
-    <View style={[style, { height }]}>
-      <Text
-        style={[styles.dayNumber, theme.textPrimary,
-        isToday && styles.currentDayNumber]}
-      >{dayNumber}</Text>
+    <View style={styles.header}>
+      {WEEK_DAYS.map(day => (
+        <Text key={day} style={[theme.textPrimary, styles.headerCell]}>{day}</Text>)
+      )}
     </View>
   )
 }
@@ -91,7 +74,7 @@ const CalendarCell = ({ dayNumber, isToday, height, style }: CalendarCellProps) 
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    borderRadius: 8,
+    borderRadius: theme.BORDER_RADIUS,
   },
   cell: {
     flex: 1,
@@ -99,27 +82,12 @@ const styles = StyleSheet.create({
     borderColor: "#303030",
     borderTopWidth: 1,
     borderLeftWidth: 1,
-    backgroundColor: "#1c1c1c",
-  },
-  dayNumber: {
-    position: "absolute",
-    bottom: 3,
-    right: 2,
-    paddingHorizontal: 5,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  currentDayNumber: {
-    backgroundColor: "#f15550",
-  },
-  borderRight: {
-    borderRightWidth: 1,
-  },
-  borderBottom: {
-    borderBottomWidth: 1,
+    //backgroundColor: "#1c1c1c",
+    //backgroundColor: "#232323",
+    backgroundColor: "#202020",
   },
   header: {
-    paddingBottom: 2,
+    paddingBottom: 3,
     width: "100%",
     flexDirection: "row",
   },
