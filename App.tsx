@@ -2,16 +2,28 @@ import { StatusBar } from "expo-status-bar"
 import { ThemeProvider, useTheme } from "@/hooks/useTheme"
 import { StyleSheet, View } from "react-native"
 import Calendar from "@/components/Calendar"
+import * as theme from "@/styles/theme"
+import { createNativeStackNavigator } from "@react-navigation/native-stack"
+import { NavigationContainer } from "@react-navigation/native"
+
+const Stack = createNativeStackNavigator()
 
 export default () => (
   <ThemeProvider>
-    <AppContent />
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen 
+          name="Calendar"
+          component={CalendarScreen}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   </ThemeProvider>
 )
 
-const AppContent = () => {
-  const { theme } = useTheme()
 
+const CalendarScreen = () => {
+  const { theme } = useTheme()
   return (
     <View style={[theme.root, styles.app]}>
       <Calendar />
@@ -25,6 +37,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 12,
+    padding: theme.APP_CONTAINER_PADDING,
   },
 })
