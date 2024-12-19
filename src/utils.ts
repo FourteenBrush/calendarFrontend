@@ -17,11 +17,11 @@ export const dateToMonthAndYear = (date: Date): string => {
 
 export const getDayOfMonth = (): number => new Date().getDate()
 
-export type Day = Readonly<{
-  date: Date,
-  weekDay: WeekDay,
-  isCurrentMonth: boolean,
-}>
+export type Day = {
+  readonly date: Date,
+  readonly weekDay: WeekDay,
+  readonly isCurrentMonth: boolean,
+}
 
 // DO NOT REORDER
 export enum WeekDay {
