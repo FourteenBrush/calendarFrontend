@@ -2,7 +2,7 @@ import { PropsWithChildren, useState } from "react"
 import { StyleProp, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from "react-native"
 
 export type HoverableOpacityProps = PropsWithChildren & TouchableOpacityProps & {
-  hoverStyle?: StyleProp<ViewStyle>,
+  hoverStyle: StyleProp<ViewStyle>,
   hoverOpacity?: number,
   style?: StyleProp<ViewStyle>,
 }
@@ -12,11 +12,12 @@ export default ({ hoverStyle, hoverOpacity, style, children, ...props }: Hoverab
 
   return (
     <View
+      style={style}
       onPointerEnter={() => setIsHovering(true)}
       onPointerLeave={() => setIsHovering(false)}>
       <TouchableOpacity
         {...props}
-        style={[style, isHovering && hoverStyle]}
+        style={isHovering && hoverStyle}
       >
         {children}
       </TouchableOpacity>
