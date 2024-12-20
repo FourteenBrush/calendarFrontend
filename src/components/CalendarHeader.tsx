@@ -5,29 +5,31 @@ import HoverableOpacity from "./HoverableOpacity"
 export type CalendarHeaderProps = {
   onTodayButtonPress: (event: GestureResponderEvent) => void,
   style?: StyleProp<ViewStyle>,
+  monthTitle: string,
 }
 
-export default ({ onTodayButtonPress, style }: CalendarHeaderProps) => {
+export default ({ onTodayButtonPress, monthTitle, style }: CalendarHeaderProps) => {
   const { theme } = useTheme()
 
   return (
     <View style={[styles.container, style]}>
       <HoverableOpacity
         onPress={onTodayButtonPress}
-        style={[styles.todayButton]}
+        style={styles.todayButton}
         hoverStyle={styles.todayButtonHover}
         activeOpacity={0.45}
       >
         <Text style={[theme.textPrimary, styles.todayText]}>Today</Text>
       </HoverableOpacity>
 
-      <Text style={[styles.text, theme.textPrimary]}>December 2024</Text>
+      <Text style={[styles.text, theme.textPrimary]}>{monthTitle}</Text>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
+    paddingLeft: 10,
     paddingVertical: 12,
     display: "flex",
     flexDirection: "row",
@@ -36,7 +38,7 @@ const styles = StyleSheet.create({
   todayButton: {
     marginRight: 40,
     paddingHorizontal: 18,
-    paddingVertical: 7,
+    paddingVertical: 6,
     borderRadius: 25,
     borderWidth: 1,
     borderColor: "#282828",
