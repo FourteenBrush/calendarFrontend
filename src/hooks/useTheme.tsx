@@ -9,7 +9,7 @@ export type ThemeContextValues = {
 
 const ThemeContext = createContext({} as ThemeContextValues)
 
-export const ThemeProvider = ({children}: PropsWithChildren) => {
+export const ThemeProvider = ({ children }: PropsWithChildren) => {
   const colorScheme = useColorScheme() ?? "dark"
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === "dark")
 
@@ -24,4 +24,10 @@ export const ThemeProvider = ({children}: PropsWithChildren) => {
   )
 }
 
-export const useTheme = () => useContext(ThemeContext)
+export const useTheme = () => {
+  const theme = useContext(ThemeContext)
+  if (theme == null) {
+    throw new Error("no auth provider found, did you forget to wrap your component with one?")
+  }
+  return theme
+}
