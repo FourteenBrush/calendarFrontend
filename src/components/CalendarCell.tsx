@@ -3,6 +3,10 @@ import { Day, DAYS_PER_WEEK, WeekDay } from "@/utils"
 import * as theme from "@/styles/theme"
 import { useTheme } from "@/hooks/useTheme"
 import EventLine, { Event } from "@/components/EventLine"
+import HoverableOpacity from "@/components/HoverableOpacity"
+import { useNavigation } from "@react-navigation/native"
+import { NavParamsList } from "../../App"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 export type CalendarCellRenderInfo = ListRenderItemInfo<Day> & {
   height: number,
@@ -44,7 +48,7 @@ export const renderCell = ({ item, index, height, cellsCount: daysCount, events 
   )
 }
 
-export type CalendarCellProps = {
+type CalendarCellProps = {
   day: Day,
   height: number,
   readonly events: Event[],
@@ -53,6 +57,7 @@ export type CalendarCellProps = {
 
 const CalendarCell = ({ day, height, style, events }: CalendarCellProps) => {
   const { theme } = useTheme()
+  const navigator = useNavigation<NativeStackNavigationProp<NavParamsList>>()
   const isToday = day.date.toLocaleDateString() === new Date().toLocaleDateString()
 
   // TODO: events overflow day number, add some kind of nowrap
@@ -60,7 +65,12 @@ const CalendarCell = ({ day, height, style, events }: CalendarCellProps) => {
     <View style={[style, { height }]}>
       <View style={{ flex: 1, overflow: "hidden" }}>
         {events.map(event => (
-          <EventLine key={event.title} title={event.title} />
+          <HoverableOpacity key={event.title} hoverStyle={{}} onPress={() => {
+            console.info("can go back", navigator.canGoBack())
+            navigator.navigate("details", { item: event })
+          }}>
+            <EventLine key={event.title} title={event.title} />
+          </HoverableOpacity>
         ))}
       </View>
 

@@ -1,36 +1,37 @@
-import React, { FlatList, StyleSheet } from "react-native"
+import React, { FlatList, StyleSheet, View } from "react-native"
 import CalendarGrid from "@/components/CalendarGrid"
 import CalendarHeader from "@/components/CalendarHeader"
-import { useRef, useState } from "react"
-import { Day, DAYS_PER_WEEK, getCalendarDays } from "@/utils"
+import { useRef } from "react"
+import { dateToMonthAndYear, Day, DAYS_PER_WEEK, getCalendarDays } from "@/utils"
 
-export default () => {
-  const today = new Date()
-  const calendarDays = getCalendarDays(today.getFullYear(), today.getMonth() + 1)
+const Calendar = () => {
   const cellsRef = useRef<FlatList<Day> | null>(null)
-  const [days, setDays] = useState(calendarDays)
 
-  // TODO: index does not consider extra days of month prepended
+  const today = new Date()
+  const days = getCalendarDays(today.getFullYear(), today.getMonth())
+
   const scrollToToday = () => {
     const today = new Date().getDate()
-    // NOTE: scrollToIndex requires an index into the logical row, discards decimal positions
-    const index = days.findIndex(day => day.date.getDate() === today) / DAYS_PER_WEEK
-    cellsRef.current?.scrollToIndex({ index, animated: true })
+    const rowIndex = days.findIndex(day => day.date.getDate() === today) / DAYS_PER_WEEK
+    cellsRef.current?.scrollToIndex({ index: rowIndex, animated: true })
   }
 
   return (
-    <>
+    <View style={styles.container}>
       <CalendarHeader 
         onTodayButtonPress={scrollToToday} 
-        style={styles.header}
+        monthTitle={dateToMonthAndYear(today)}
       />
-      <CalendarGrid listRef={cellsRef} days={days} />
-    </>
+      <CalendarGrid listRef={cellsRef} cells={days} />
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  header: {
+  container: {
+    flex: 1,
     width: "100%",
-  }
+  },
 })
+
+export default Calendar

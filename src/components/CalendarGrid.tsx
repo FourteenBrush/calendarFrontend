@@ -11,7 +11,7 @@ export type CalendarGridProps = {
   readonly cells: Day[],
 }
 
-export default ({ listRef, cells }: CalendarGridProps) => {
+const CalendarGrid = ({ listRef, cells }: CalendarGridProps) => {
   const { height } = useWindowDimensions()
 
   const viewabilityConfig = useRef<ViewabilityConfig>({
@@ -73,8 +73,13 @@ const WeekDaysHeader = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     width: "100%",
     borderRadius: theme.BORDER_RADIUS,
+  },
+  header: {
+    paddingBottom: 3,
+    flexDirection: "row",
   },
   cell: {
     flex: 1,
@@ -86,13 +91,10 @@ const styles = StyleSheet.create({
     //backgroundColor: "#232323",
     backgroundColor: "#202020",
   },
-  header: {
-    paddingBottom: 3,
-    width: "100%",
-    flexDirection: "row",
-  },
   headerCell: {
     textAlign: "center",
     flex: 1,
   },
 })
+
+export default CalendarGrid

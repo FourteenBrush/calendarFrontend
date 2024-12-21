@@ -29,6 +29,7 @@ export default ({ onTodayButtonPress, monthTitle, style }: CalendarHeaderProps) 
 
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
     paddingLeft: 10,
     paddingVertical: 12,
     display: "flex",
