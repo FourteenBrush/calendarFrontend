@@ -1,7 +1,7 @@
 import { MutableRefObject, useCallback, useRef } from "react"
 import React, { FlatList, ListRenderItemInfo, StyleSheet, Text, useWindowDimensions, View, ViewabilityConfig, ViewToken } from "react-native"
 import { useTheme } from "@/hooks/useTheme"
-import { Day, DAYS_PER_WEEK, WEEK_DAYS } from "@/utils"
+import { CalendarItem, Day, DAYS_PER_WEEK, WEEK_DAYS } from "@/utils"
 import * as theme from "@/styles/theme"
 import { renderCell } from "./CalendarCell"
 import { mockEventsData } from "@/mock"
@@ -9,9 +9,10 @@ import { mockEventsData } from "@/mock"
 export type CalendarGridProps = {
   listRef: MutableRefObject<FlatList<Day> | null>,
   readonly cells: Day[],
+  setCells: (cells: Day[]) => void,
 }
 
-const CalendarGrid = ({ listRef, cells }: CalendarGridProps) => {
+const CalendarGrid = ({ listRef, cells, setCells }: CalendarGridProps) => {
   const { height } = useWindowDimensions()
 
   const viewabilityConfig = useRef<ViewabilityConfig>({
@@ -23,9 +24,23 @@ const CalendarGrid = ({ listRef, cells }: CalendarGridProps) => {
 
   const cellHeight = Math.max(theme.MIN_CELL_HEIGHT, height / 7)
 
+  const updateItem = (newState: CalendarItem) => {
+    console.debug("calendar grid notified to change item to", newState)
+
+    const todayDateStr = new Date().toLocaleDateString()
+    const thisDay = cells.find(({ date }) => date.toLocaleDateString() === todayDateStr)!
+    thisDay.items = thisDay.items.map(day => {
+      if (day.id === newState.id) {
+        return newState
+      }
+      return day
+    })
+    setCells(cells)
+  }
+
   const renderItem = (renderInfo: ListRenderItemInfo<Day>) => {
-    const events = Math.random() < 0.3 ? mockEventsData : []
-    return renderCell({ height: cellHeight, cellsCount: cells.length, events, ...renderInfo })
+    const items = Math.random() < 0.3 ? mockEventsData : []
+    return renderCell({ height: cellHeight, cellsCount: cells.length, items: items, updateItem, ...renderInfo })
   }
 
   const getItemLayout = (_: ArrayLike<Day> | null | undefined, index: number) => {

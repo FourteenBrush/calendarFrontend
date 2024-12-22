@@ -1,20 +1,26 @@
-import React, { ListRenderItemInfo, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
-import { Day, DAYS_PER_WEEK, WeekDay } from "@/utils"
+import React, { ListRenderItemInfo, LogBox, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
+import { CalendarItem, Day, DAYS_PER_WEEK, WeekDay } from "@/utils"
 import * as theme from "@/styles/theme"
 import { useTheme } from "@/hooks/useTheme"
-import EventLine, { Event } from "@/components/EventLine"
+import CalendarItemLine from "@/components/CalendarItemLine"
 import HoverableOpacity from "@/components/HoverableOpacity"
 import { useNavigation } from "@react-navigation/native"
 import { NavParamsList } from "../../App"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
+// we are not using state persistance or deep linking, so passing functions is fine
+LogBox.ignoreLogs([
+  "Non-serializable values were found in the navigation state",
+])
+
 export type CalendarCellRenderInfo = ListRenderItemInfo<Day> & {
   height: number,
   cellsCount: number,
-  readonly events: Event[],
+  readonly items: CalendarItem[],
+  updateItem: (newState: CalendarItem) => void,
 }
 
-export const renderCell = ({ item, index, height, cellsCount: daysCount, events }: CalendarCellRenderInfo) => {
+export const renderCell = ({ item, index, height, cellsCount: daysCount, items, updateItem }: CalendarCellRenderInfo) => {
   // create round corners
   const isTopLeft = index === 0
   const isTopRight = index === DAYS_PER_WEEK - 1
@@ -42,7 +48,8 @@ export const renderCell = ({ item, index, height, cellsCount: daysCount, events 
     <CalendarCell
       day={item}
       height={height}
-      events={events}
+      items={items}
+      updateItem={updateItem}
       style={style}
     />
   )
@@ -51,11 +58,12 @@ export const renderCell = ({ item, index, height, cellsCount: daysCount, events 
 type CalendarCellProps = {
   day: Day,
   height: number,
-  readonly events: Event[],
+  readonly items: CalendarItem[],
+  updateItem: (newState: CalendarItem) => void,
   style: StyleProp<ViewStyle>,
 }
 
-const CalendarCell = ({ day, height, style, events }: CalendarCellProps) => {
+const CalendarCell = ({ day, height, style, items, updateItem }: CalendarCellProps) => {
   const { theme } = useTheme()
   const navigator = useNavigation<NativeStackNavigationProp<NavParamsList>>()
   const isToday = day.date.toLocaleDateString() === new Date().toLocaleDateString()
@@ -64,12 +72,14 @@ const CalendarCell = ({ day, height, style, events }: CalendarCellProps) => {
   return (
     <View style={[style, { height }]}>
       <View style={{ flex: 1, overflow: "hidden" }}>
-        {events.map(event => (
-          <HoverableOpacity key={event.title} hoverStyle={{}} onPress={() => {
-            console.info("can go back", navigator.canGoBack())
-            navigator.navigate("details", { item: event })
-          }}>
-            <EventLine key={event.title} title={event.title} />
+        {items.map(item => (
+          <HoverableOpacity
+            key={item.id}
+            hoverStyle={styles.itemLineHover}
+            onPress={() => {
+              navigator.navigate("details", { passedItem: item, updateItem })
+            }}>
+            <CalendarItemLine key={item.title} title={item.title} />
           </HoverableOpacity>
         ))}
       </View>
@@ -121,6 +131,9 @@ const styles = StyleSheet.create({
     //backgroundColor: "#1c1c1c",
     backgroundColor: "#222222",
   },
+  itemLineHover: {
+    opacity: 0.65,
+  }
 })
 
 export default CalendarCell

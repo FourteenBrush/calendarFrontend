@@ -17,6 +17,7 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
 
   const handleLogin = async () => {
     try {
+      // TODO: validation
       const accessToken = await login(email, password)
       setAuthStatus({ accessToken })
       // no navigation call is needed because the navigation container
