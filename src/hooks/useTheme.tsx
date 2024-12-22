@@ -27,7 +27,7 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
 export const useTheme = () => {
   const theme = useContext(ThemeContext)
   if (theme == null) {
-    throw new Error("no auth provider found, did you forget to wrap your component with one?")
+    throw new Error("no theme provider found, did you forget to wrap your component with one?")
   }
   return theme
 }
