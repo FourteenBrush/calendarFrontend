@@ -3,37 +3,54 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useState } from "react"
 import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { NavParamsList } from "../../App"
+import { useTheme } from "@/hooks/useTheme"
+import { useAuth } from "@/hooks/useAuth"
 
 export type LoginScreenProps = NativeStackScreenProps<NavParamsList, "login">
 
 const LoginScreen = ({ navigation }: LoginScreenProps) => {
+  const { theme } = useTheme()
+  const { setAuthStatus } = useAuth()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
 
   const handleLogin = async () => {
     try {
-      await login(email, password)
-      navigation.popTo("calendar")
+      const accessToken = await login(email, password)
+      setAuthStatus({ accessToken })
+      // no navigation call is needed because the navigation container
+      // automatically mounts new screens after authentication
     } catch (error) {
-
+      console.error("error while logging in:", error)
+      // TODO: show to user
     }
   }
 
   const handleSignup = () => navigation.popTo("register")
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, theme.loginScreenRoot]}>
       {/* form wrapper */}
       <View>
-        <TextInput inputMode="email" onChangeText={setEmail} placeholder="Email" style={styles.formField} />
-        <TextInput secureTextEntry onChangeText={setPassword} placeholder="Password" style={styles.formField} />
+        <TextInput 
+          inputMode="email"
+          onChangeText={setEmail}
+          placeholder="Email"
+          style={theme.formField}
+        />
+        <TextInput
+          secureTextEntry
+          onChangeText={setPassword}
+          placeholder="Password"
+          style={theme.formField}
+        />
         <Button color="#334244" title="Sign in" onPress={handleLogin} />
 
         <View style={styles.signUp}>
-          <Text>Not a member?</Text>
+          <Text style={theme.textPrimary}>Not a member?</Text>
           <TouchableOpacity onPress={handleSignup}>
-            <Text>Sign up</Text>
+            <Text style={theme.textPrimary}>Sign up</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -46,13 +63,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  formField: {
-    padding: 12,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#e6e6e6",
-    borderRadius: 5,
   },
   signUp: {
     width: "100%",
