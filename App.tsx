@@ -7,6 +7,7 @@ import CalendarItemScreen from "@/screens/CalendarItemScreen"
 import LoginScreen from "@/screens/LoginScreen"
 import { AuthProvider, useAuth } from "@/hooks/useAuth"
 import { CalendarItem } from "@/utils"
+import RegisterScreen from "@/screens/RegisterScreen"
 
 /**
  * A mapping between screen names and the respective
@@ -46,6 +47,7 @@ const NavigationContent = () => {
         ) : (
           <>
             <Stack.Screen name="login" component={LoginScreen} options={hideHeader} />
+            <Stack.Screen name="register" component={RegisterScreen} options={hideHeader} />
           </>
         )}
       </Stack.Navigator>
