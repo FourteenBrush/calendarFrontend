@@ -1,10 +1,12 @@
 import { login } from "@/api_calls"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useState } from "react"
-import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { Button, StyleSheet, Text, TextInput, View } from "react-native"
 import { NavParamsList } from "../../App"
 import { useTheme } from "@/hooks/useTheme"
 import { useAuth } from "@/hooks/useAuth"
+import * as theme from "@/styles/theme"
+import HoverableOpacity from "@/components/HoverableOpacity"
 
 export type LoginScreenProps = NativeStackScreenProps<NavParamsList, "login">
 
@@ -33,7 +35,9 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
   return (
     <View style={[styles.container, theme.loginScreenRoot]}>
       {/* form wrapper */}
-      <View>
+      <View style={styles.form}>
+        <Text style={[theme.titleBig,, styles.signInText]}>Sign in</Text>
+
         <TextInput 
           inputMode="email"
           onChangeText={setEmail}
@@ -50,9 +54,9 @@ const LoginScreen = ({ navigation }: LoginScreenProps) => {
 
         <View style={styles.signUp}>
           <Text style={theme.textPrimary}>Not a member?</Text>
-          <TouchableOpacity onPress={handleSignup}>
+          <HoverableOpacity hoverStyle={styles.hover} onPress={handleSignup}>
             <Text style={theme.textPrimary}>Sign up</Text>
-          </TouchableOpacity>
+          </HoverableOpacity>
         </View>
       </View>
     </View>
@@ -63,7 +67,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: theme.FORM_ALIGN_ITEMS,
+    padding: theme.FORM_PADDING,
+  },
+  form: {
+    width: "100%",
+    maxWidth: theme.FORM_MAX_WIDTH,
+  },
+  signInText: {
+    paddingBottom: 12,
+  },
+  hover: {
+    opacity: theme.HOVER_OPACITY,
   },
   signUp: {
     width: "100%",
