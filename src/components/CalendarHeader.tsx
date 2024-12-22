@@ -1,28 +1,56 @@
 import { useTheme } from "@/hooks/useTheme"
 import { GestureResponderEvent, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
-import HoverableOpacity from "./HoverableOpacity"
+import HoverableOpacity from "@/components/HoverableOpacity"
+import * as theme from "@/styles/theme"
+import { useAuth } from "@/hooks/useAuth"
+import { useNavigation } from "@react-navigation/native"
+import { NavParamsList } from "../../App"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { CalendarItem } from "@/utils"
 
 export type CalendarHeaderProps = {
   onTodayButtonPress: (event: GestureResponderEvent) => void,
+  updateItem: (newState: CalendarItem) => void,
   style?: StyleProp<ViewStyle>,
   monthTitle: string,
 }
 
 export default ({ onTodayButtonPress, monthTitle, style }: CalendarHeaderProps) => {
   const { theme } = useTheme()
+  const { setAuthStatus } = useAuth()
+  const navigator = useNavigation<NativeStackNavigationProp<NavParamsList>>()
+
+  const logout = async () => await setAuthStatus(false)
 
   return (
     <View style={[styles.container, style]}>
       <HoverableOpacity
         onPress={onTodayButtonPress}
-        style={styles.todayButton}
-        hoverStyle={styles.todayButtonHover}
+        style={[styles.button, styles.todayButton]}
+        hoverStyle={styles.buttonHover}
         activeOpacity={0.45}
       >
-        <Text style={[theme.textPrimary, styles.todayText]}>Today</Text>
+        <Text style={[theme.textPrimary, styles.buttonText]}>Today</Text>
       </HoverableOpacity>
 
-      <Text style={[styles.text, theme.textPrimary]}>{monthTitle}</Text>
+      <Text style={[styles.text, theme.textPrimary]}>Current month: {monthTitle}</Text>
+
+      <HoverableOpacity
+        style={[styles.button, styles.newItemButton]}
+        hoverStyle={styles.buttonHover}
+        activeOpacity={0.45}
+      >
+        <Text style={[theme.textPrimary, styles.buttonText]}>New Item</Text>
+      </HoverableOpacity>
+
+      <HoverableOpacity
+        onPress={logout}
+        style={[styles.button, styles.logoutButton]}
+        hoverStyle={styles.buttonHover}
+        activeOpacity={0.45}
+      >
+        <Text style={[theme.textPrimary, styles.buttonText]}>Logout</Text>
+      </HoverableOpacity>
     </View>
   )
 }
@@ -36,8 +64,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  todayButton: {
-    marginRight: 40,
+  button: {
     paddingHorizontal: 18,
     paddingVertical: 6,
     borderRadius: 25,
@@ -45,9 +72,18 @@ const styles = StyleSheet.create({
     borderColor: "#282828",
     backgroundColor: "#232124",
   },
-  todayButtonHover: {
-    opacity: 0.65,
+  todayButton: {
+    marginRight: 40,
+  },
+  newItemButton: {
+    marginLeft: 24,
+  },
+  logoutButton: {
+    marginLeft: 40,
+  },
+  buttonHover: {
+    opacity: theme.HOVER_OPACITY,
   },
   text: { fontSize: 20 },
-  todayText: { fontSize: 18 },
+  buttonText: { fontSize: 18 },
 })

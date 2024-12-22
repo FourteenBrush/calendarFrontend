@@ -1,5 +1,5 @@
-import React, { ListRenderItemInfo, LogBox, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
-import { CalendarItem, Day, DAYS_PER_WEEK, WeekDay } from "@/utils"
+import React, { ListRenderItemInfo, LogBox, StyleProp, StyleSheet, Text, TextInput, View, ViewStyle } from "react-native"
+import { CalendarItem, dateToMonth, Day, DAYS_PER_WEEK, WeekDay } from "@/utils"
 import * as theme from "@/styles/theme"
 import { useTheme } from "@/hooks/useTheme"
 import CalendarItemLine from "@/components/CalendarItemLine"
@@ -67,10 +67,15 @@ const CalendarCell = ({ day, height, style, items, updateItem }: CalendarCellPro
   const { theme } = useTheme()
   const navigator = useNavigation<NativeStackNavigationProp<NavParamsList>>()
   const isToday = day.date.toLocaleDateString() === new Date().toLocaleDateString()
+  const isStartOfMonth = day.date.getDate() === 1
 
   // TODO: events overflow day number, add some kind of nowrap
   return (
     <View style={[style, { height }]}>
+      {/* start of the month */}
+      {isStartOfMonth && <Text style={theme.textPrimary}>{dateToMonth(day.date)}</Text>}
+
+      {/* calendar items */}
       <View style={{ flex: 1, overflow: "hidden" }}>
         {items.map(item => (
           <HoverableOpacity
@@ -132,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#222222",
   },
   itemLineHover: {
-    opacity: 0.65,
+    opacity: theme.HOVER_OPACITY,
   }
 })
 

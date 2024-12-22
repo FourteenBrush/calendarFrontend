@@ -1,29 +1,36 @@
-import React, { FlatList, StyleSheet, View } from "react-native"
+import React, { StyleSheet, Text, View } from "react-native"
 import CalendarGrid from "@/components/CalendarGrid"
-import CalendarHeader from "@/components/CalendarHeader"
-import { useRef, useState } from "react"
-import { dateToMonthAndYear, Day, DAYS_PER_WEEK, getCalendarDays } from "@/utils"
+import { useEffect, useState } from "react"
+import { Day } from "@/utils"
+import { getCalendarItemsInPeriod } from "@/api_calls"
+import { useAuth } from "@/hooks/useAuth"
 
 const Calendar = () => {
-  const cellsRef = useRef<FlatList<Day> | null>(null)
-  const today = new Date()
-  const [cells, setCells] = useState(
-    getCalendarDays(today.getFullYear(), today.getMonth())
-  )
+  const { accessToken } = useAuth()
+  const [cells, setCells] = useState<Day[] | null>(null)
 
-  const scrollToToday = () => {
-    const today = new Date().getDate()
-    const rowIndex = cells.findIndex(day => day.date.getDate() === today) / DAYS_PER_WEEK
-    cellsRef.current?.scrollToIndex({ index: rowIndex, animated: true })
+  const fetchData = async () => {
+    try {
+      const today = new Date()
+      today.setMonth(today.getMonth() - 6) // TODO
+      const calendarDays = await getCalendarItemsInPeriod(accessToken!, new Date())
+
+      setCells(calendarDays)
+    } catch (error) {
+      console.error(error)
+    }
   }
+
+  useEffect(() => { fetchData() }, [])
+
 
   return (
     <View style={styles.container}>
-      <CalendarHeader 
-        onTodayButtonPress={scrollToToday} 
-        monthTitle={dateToMonthAndYear(today)}
-      />
-      <CalendarGrid listRef={cellsRef} cells={cells} setCells={setCells} />
+      {
+        cells == null
+          ? <Text>Loading..</Text>
+          : <CalendarGrid cells={cells} setCells={setCells} />
+      }
     </View>
   )
 }

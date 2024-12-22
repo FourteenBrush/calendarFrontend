@@ -3,7 +3,7 @@ import { z, ZodObject, ZodRawShape, ZodType } from "zod"
 export const DAYS_PER_WEEK = 7
 export const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const
 
-const MONTHS_LONG = [
+export const MONTHS_LONG = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ] as const
@@ -15,6 +15,10 @@ export const daysInMonth = (today: Date) => {
 export const dateToMonthAndYear = (date: Date): string => {
   const month = MONTHS_LONG[date.getMonth()]
   return `${month} ${date.getFullYear()}`
+}
+
+export const dateToMonth = (d: Date): string => {
+  return MONTHS_LONG[d.getMonth()]
 }
 
 export const getDayOfMonth = (): number => new Date().getDate()
@@ -58,11 +62,20 @@ const isLeapYear = (year: number): boolean => {
   return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)
 }
 
-export const getCalendarDays = (year: number, monthIdx: number): Day[] => {
+export const getCalendarDays = (year: number, monthIdx: number, calendarItems: CalendarItem[]): Day[] => {
   const firstDayOfYear = new Date(year, monthIdx, 1)
   const daysPrepended = (firstDayOfYear.getDay() + 6) % DAYS_PER_WEEK
   const dayCount = daysPrepended + (isLeapYear(year) ? 366 : 365)
   const daysAppended = (DAYS_PER_WEEK - dayCount % DAYS_PER_WEEK) % DAYS_PER_WEEK
+
+  const isDateInRangeOfItem = (d: Date, item: CalendarItem): boolean => {
+    const isTask = "completed" in item
+    if (isTask) {
+      const { endDate } = item
+      return d.getDate() === endDate.getDate() && d.getMonth() === endDate.getMonth() && d.getFullYear() === endDate.getFullYear()
+    }
+    return d >= (item as any).startDate && d <= item.endDate
+  }
 
   return Array.from(
     { length: dayCount + daysAppended },
@@ -70,7 +83,9 @@ export const getCalendarDays = (year: number, monthIdx: number): Day[] => {
       const date = new Date(year, monthIdx, i + 1 - daysPrepended)
       const weekDay = (i % DAYS_PER_WEEK) as WeekDay
       const isCurrentMonth = monthIdx === date.getMonth() && year === date.getFullYear()
-      return { date, weekDay, isCurrentMonth }
+      // FIXME: performance boost with binary search, currently O(D * N)
+      const items = calendarItems.filter(item => isDateInRangeOfItem(date, item))
+      return { date, weekDay, isCurrentMonth, items }
     }
   )
 }
@@ -90,11 +105,11 @@ export type FormErrors<T extends ZodType<any, any, any>> = Partial<Record<keyof 
  * Union of validation results, where either `data` is set, or `errors` is.
  * `errors` always contains the first error encountered
  */
-export type ValidationResult<T> = 
+export type ValidationResult<T> =
   { data: T, errors?: undefined } |
   { data?: undefined, errors: Partial<Record<keyof T, string>> }
 
-export const validateFormData = <T extends ZodRawShape> (
+export const validateFormData = <T extends ZodRawShape>(
   data: z.infer<ZodObject<T>>,
   scheme: z.ZodObject<T>,
 ): ValidationResult<z.infer<ZodObject<T>>> => {

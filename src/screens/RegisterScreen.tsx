@@ -5,21 +5,20 @@ import { useAuth } from "@/hooks/useAuth"
 import { useTheme } from "@/hooks/useTheme"
 import * as theme from "@/styles/theme"
 import { FormErrors, validateFormData } from "@/utils"
-import { NativeStackNavigationProp, NativeStackNavigatorProps, NativeStackScreenProps } from "@react-navigation/native-stack"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { useState } from "react"
 import { Button, StyleSheet, Text, TextInput, View } from "react-native"
 import { z } from "zod"
 import { NavParamsList } from "../../App"
+import { loginScheme } from "@/screens/LoginScreen"
 
-const registerScheme = z.object({
+const registerScheme = loginScheme.extend({
   firstName: z.string()
     .min(2, { message: "First name must be at least 2 characters long" })
     .max(255, { message: "First name must be at most 255 characters long" }),
   lastName: z.string()
     .min(2, { message: "Last name must be at least 2 characters long" })
     .max(255, { message: "Last name must be at most 255 characters long" }),
-  email: z.string().email({ message: "Not a valid email" }),
-  password: z.string().min(5, { message: "Password must be at least 5 characters long" }),
 })
 
 type Errors = FormErrors<typeof registerScheme>
@@ -49,11 +48,12 @@ const RegisterScreen = ({ navigation }: RegisterScreenProps) => {
 
     setErrors({})
     try {
-      const accessToken = await register(email, password)
+      const accessToken = await register(firstName, lastName, email, password)
       setAuthStatus({ accessToken })
       // redirect happens automatically
     } catch (error) {
       setErrors({ globalError: "An internal error happened while signing you up.." })
+      console.error("error while signing up:", error)
     }
   }
 

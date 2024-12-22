@@ -15,7 +15,7 @@ import RegisterScreen from "@/screens/RegisterScreen"
  * See `useNavigation()`.
  */
 export type NavParamsList = {
-  details: { passedItem: CalendarItem, updateItem: (e: CalendarItem) => void },
+  details: { passedItem: CalendarItem | null, updateItem: (e: CalendarItem) => void },
   calendar: undefined,
   login: undefined,
   register: undefined,
@@ -24,11 +24,11 @@ export type NavParamsList = {
 const Stack = createNativeStackNavigator<NavParamsList>()
 
 export default () => (
-  <AuthProvider>
-    <ThemeProvider>
+  <ThemeProvider>
+    <AuthProvider>
       <NavigationContent />
-    </ThemeProvider>
-  </AuthProvider>
+    </AuthProvider>
+  </ThemeProvider>
 )
 
 const NavigationContent = () => {
